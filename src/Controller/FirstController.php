@@ -15,6 +15,12 @@ class FirstController extends AbstractController
         return new Response("<html><body>$maVar</body></html>");
     }
 
+    #[Route('/template', name: 'template')]
+    public function template()
+    {
+        return $this->render('template.html.twig');
+    }
+
 
     #[Route('/first', name: 'app_first')]
     public function index(): Response
@@ -26,13 +32,13 @@ class FirstController extends AbstractController
         ]);
     }
 
-    #[Route('/hello/{name}/{prenom}', name: 'helloPage')]
-    public function hello($name,$prenom): Response
+    //#[Route('/hello/{name}/{prenom}', name: 'helloPage')]
+    public function hello($name,$firstname): Response
     {
 
         return $this->render('first/hello.html.twig',[
-            'nom' => $name,
-            'prenom' => $prenom
+            'name' => $name,
+            'firstname' => $firstname,
         ]);
     }
     #[Route('multi/{entier1<\d+>}/{entier2<\d+>}',name: 'multuplication')]
