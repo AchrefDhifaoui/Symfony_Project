@@ -21,7 +21,8 @@ class FirstController extends AbstractController
     {
         return $this->render('first/index.html.twig',[
             'name' => 'achref',
-            'firstName' => 'dhifaoui'
+            'firstName' => 'dhifaoui',
+            'path' => 'tim.jpg'
         ]);
     }
 
