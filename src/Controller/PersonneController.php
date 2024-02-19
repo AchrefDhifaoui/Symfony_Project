@@ -17,6 +17,24 @@ class PersonneController extends AbstractController
         $personnes =$repository->findAll();
         return $this->render('personne/index.html.twig',['personnes'=>$personnes]);
     }
+    #[Route('/alls/{page?1}/{nmbre?12}', name: 'personne.list.alls')]
+    public function indexAlls(ManagerRegistry $doctrine ,$page ,$nmbre):Response
+    {
+
+        $repository = $doctrine->getRepository(Personne::class);
+        $personnes =$repository->findBy([],[],$nmbre,($page -1)*$nmbre);
+        return $this->render('personne/index.html.twig',['personnes'=>$personnes]);
+    }
+    #[Route('/{id<\d+>}', name: 'personne.detail')]
+    public function detail(Personne $personne = null):Response
+    {
+
+        if (!$personne){
+            $this->addFlash('error',"la personne avec id personne nexiste pas");
+            return $this->redirectToRoute('personne.list');
+        }
+        return $this->render('personne/detail.html.twig',['personne'=>$personne]);
+    }
     #[Route('/add', name: 'personne_add')]
     public function addPersonne(ManagerRegistry $doctrine): Response
     {
