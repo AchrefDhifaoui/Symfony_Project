@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Personne;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -24,17 +25,34 @@ class PersonneRepository extends ServiceEntityRepository
 //    /**
 //     * @return Personne[] Returns an array of Personne objects
 //     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('p.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function findPersonneByAgeInterval($ageMin , $ageMax)
+    {
+        $qb = $this->createQueryBuilder('p');
+
+
+            return $qb->getQuery()->getResult() ;
+
+
+    }
+
+
+    public function statsPersonneByAgeInterval($ageMin , $ageMax ,)
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('avg(p.age) as ageMoyen,count(p.id) as nombrePersonne');
+            $this->addIntervalAge($qb,$ageMin,$ageMax);
+            return $qb->getQuery()->getScalarResult()  ;
+
+
+    }
+
+    private function addIntervalAge(\Doctrine\ORM\QueryBuilder $qb ,$ageMin,$ageMax)
+    {
+        $qb->andWhere('p.age >=:ageMin and p.age <=:ageMax')
+            ->setParameter('ageMin', $ageMin)
+            ->setParameter('ageMax', $ageMax);
+
+    }
 
 //    public function findOneBySomeField($value): ?Personne
 //    {
