@@ -66,18 +66,18 @@ class PersonneController extends AbstractController
     {
         $entityManager = $doctrine->getManager() ;
 
-        //$personne2 = new Personne();
-        //$personne2->setFirstname('riadh');
-        //$personne2->setName('dhifaoui');
-        //$personne2->setAge(33);
-        //$personne->setJob('developper');
+        $personne2 = new Personne();
+        $personne2->setFirstname('riadh');
+        $personne2->setName('dhifaoui');
+        $personne2->setAge(33);
+        //$personne2->setJob('developper');
         //ajouter operation insertion personne en bd
         //$entityManager->persist($personne);
-        //$entityManager->persist($personne2);
+        $entityManager->persist($personne2);
         //exucute la transaction todo
         $entityManager->flush();
         return $this->render('personne/detail.html.twig', [
-            //'personne' => $personne,
+            'personne' => $personne2
         ]);
     }
     #[Route('/delete/{id}', name: 'personne.delete')]

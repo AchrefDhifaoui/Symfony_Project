@@ -1,0 +1,46 @@
+{% extends 'template.html.twig' %}
+
+{% block title %}ParametreIota{% endblock %}
+
+{% block body %}
+    <h1>ParametreIota</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ parametre_iotum.id }}</td>
+            </tr>
+            <tr>
+                <th>Nom</th>
+                <td>{{ parametre_iotum.nom }}</td>
+            </tr>
+            <tr>
+                <th>Adresse</th>
+                <td>{{ parametre_iotum.adresse }}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>{{ parametre_iotum.email }}</td>
+            </tr>
+            <tr>
+                <th>Tel</th>
+                <td>{{ parametre_iotum.tel }}</td>
+            </tr>
+            <tr>
+                <th>Fax</th>
+                <td>{{ parametre_iotum.fax }}</td>
+            </tr>
+            <tr>
+                <th>Mf</th>
+                <td>{{ parametre_iotum.mf }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_parametre_iota_index') }}">back to list</a>
+
+    <a href="{{ path('app_parametre_iota_edit', {'id': parametre_iotum.id}) }}">edit</a>
+
+    {{ include('parametre_iota/_delete_form.html.twig') }}
+{% endblock %}

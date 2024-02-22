@@ -3,11 +3,16 @@
 namespace App\Entity;
 
 use App\Repository\ProfileRepository;
+use App\Trait\TimeStampTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProfileRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+
 class Profile
 {
+    use TimeStampTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -21,6 +26,8 @@ class Profile
 
     #[ORM\OneToOne(mappedBy: 'profile', cascade: ['persist', 'remove'])]
     private ?Personne $personne = null;
+
+
 
     public function getId(): ?int
     {
@@ -72,4 +79,8 @@ class Profile
 
         return $this;
     }
+
+
+
+
 }

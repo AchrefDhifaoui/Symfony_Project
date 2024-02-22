@@ -1,0 +1,45 @@
+{% extends 'template.html.twig' %}
+
+{% block title %}ParametreIota index{% endblock %}
+
+{% block body %}
+    <h1>ParametreIota index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nom</th>
+                <th>Adresse</th>
+                <th>Email</th>
+                <th>Tel</th>
+                <th>Fax</th>
+                <th>Mf</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for parametre_iotum in parametre_iotas %}
+            <tr>
+                <td>{{ parametre_iotum.id }}</td>
+                <td>{{ parametre_iotum.nom }}</td>
+                <td>{{ parametre_iotum.adresse }}</td>
+                <td>{{ parametre_iotum.email }}</td>
+                <td>{{ parametre_iotum.tel }}</td>
+                <td>{{ parametre_iotum.fax }}</td>
+                <td>{{ parametre_iotum.mf }}</td>
+                <td>
+                    <a href="{{ path('app_parametre_iota_show', {'id': parametre_iotum.id}) }}">show</a>
+                    <a href="{{ path('app_parametre_iota_edit', {'id': parametre_iotum.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_parametre_iota_new') }}">Create new</a>
+{% endblock %}
