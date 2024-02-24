@@ -1,0 +1,39 @@
+{% extends 'template.html.twig' %}
+
+{% block title %}FormationAssuree index{% endblock %}
+
+{% block body %}
+    <h1>FormationAssuree index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>DateDebut</th>
+                <th>Unite</th>
+                <th>Qte</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for formation_assuree in formation_assurees %}
+            <tr>
+                <td>{{ formation_assuree.id }}</td>
+                <td>{{ formation_assuree.dateDebut ? formation_assuree.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ formation_assuree.unite }}</td>
+                <td>{{ formation_assuree.qte }}</td>
+                <td>
+                    <a href="{{ path('app_formation_assuree_show', {'id': formation_assuree.id}) }}">show</a>
+                    <a href="{{ path('app_formation_assuree_edit', {'id': formation_assuree.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_formation_assuree_new') }}">Create new</a>
+{% endblock %}

@@ -4,6 +4,9 @@
 
     <div class="alert alert-success">
         {{ personne.firstname }} {{ personne.name }} {{ personne.age }}
+        {% if personne.image %}
+            <img src="{{ asset('uploads/personnes/') }}{{ personne.image }}" alt="fgnf">
+        {% endif %}
     </div>
 
 {% endblock %}

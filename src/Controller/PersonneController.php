@@ -3,15 +3,29 @@
 namespace App\Controller;
 
 use App\Entity\Personne;
+use App\Form\PersonneType;
+use App\Service\helpers;
+use App\Service\MailerService;
 use App\Service\pdfService;
+use App\Service\UploaderService;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 #[Route('personne')]
 class PersonneController extends AbstractController
 {
+
+    public function __construct(private LoggerInterface $logger , private Helpers $helper)
+    {
+    }
+
     #[Route('/', name: 'personne.list')]
     public function index(ManagerRegistry $doctrine):Response
     {
@@ -28,6 +42,7 @@ class PersonneController extends AbstractController
     #[Route('/alls/age/{ageMin}/{ageMax}', name: 'personne.list.age')]
     public function personneByAge(ManagerRegistry $doctrine ,$ageMin ,$ageMax):Response
     {
+
         $repository = $doctrine->getRepository(Personne::class);
         $personnes =$repository->findPersonneByAgeInterval($ageMin,$ageMax);
         return $this->render('personne/index.html.twig',['personnes'=>$personnes]);
@@ -42,7 +57,7 @@ class PersonneController extends AbstractController
     #[Route('/alls/{page?1}/{nmbre?12}', name: 'personne.list.alls')]
     public function indexAlls(ManagerRegistry $doctrine ,$page ,$nmbre):Response
     {
-
+        //echo ($this->helper->sayCc());
         $repository = $doctrine->getRepository(Personne::class);
         $nbPersonne = $repository->count([]);
         $nbrePage =  ceil($nbPersonne / $nmbre) ;
@@ -62,23 +77,39 @@ class PersonneController extends AbstractController
         return $this->render('personne/detail.html.twig',['personne'=>$personne]);
     }
     #[Route('/add', name: 'personne_add')]
-    public function addPersonne(ManagerRegistry $doctrine): Response
+    public function addPersonne(ManagerRegistry $doctrine , Request $request , UploaderService $uploaderService ,MailerService $mailer): Response
     {
-        $entityManager = $doctrine->getManager() ;
 
-        $personne2 = new Personne();
-        $personne2->setFirstname('riadh');
-        $personne2->setName('dhifaoui');
-        $personne2->setAge(33);
-        //$personne2->setJob('developper');
-        //ajouter operation insertion personne en bd
-        //$entityManager->persist($personne);
-        $entityManager->persist($personne2);
-        //exucute la transaction todo
-        $entityManager->flush();
-        return $this->render('personne/detail.html.twig', [
-            'personne' => $personne2
-        ]);
+        $personne = new Personne();
+
+
+        $form =$this->createForm(PersonneType::class,$personne);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()){
+            $entityManager = $doctrine->getManager() ;
+            $entityManager->persist($personne);
+            $photo = $form->get('photo')->getData();
+
+            // this condition is needed because the 'brochure' field is not required
+            // so the PDF file must be processed only when a file is uploaded
+            if ($photo) {
+                $directory = $this->getParameter('personne_directory');
+
+
+                // updates the 'brochureFilename' property to store the PDF file name
+                // instead of its contents
+                $personne->setImage($uploaderService->uploadFile($photo,$directory));
+            }
+            $entityManager->flush();
+            $mailMessage = $personne->getFirstname().' '.$personne->getName().'est ajouter';
+            $mailer->sendEmail(content: $mailMessage);
+            return $this->redirectToRoute('personne.list');
+        }else{
+            return $this->render('personne/add-personne.html.twig', [
+                'form'=>$form->createView()
+            ]);
+        }
+
     }
     #[Route('/delete/{id}', name: 'personne.delete')]
     public function deletePersonne(Personne $personne =null , ManagerRegistry $doctrine):RedirectResponse

@@ -12,12 +12,24 @@ class ParametreIotaType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('nom')
-            ->add('adresse')
-            ->add('email')
-            ->add('tel')
-            ->add('fax')
-            ->add('mf')
+            ->add('nom', null, [
+                'attr' => ['class' => 'form-control']
+            ])
+            ->add('adresse', null, [
+                'attr' => ['class' => 'form-control']
+            ])
+            ->add('email', null, [
+                'attr' => ['class' => 'form-control']
+            ])
+            ->add('tel', null, [
+                'attr' => ['class' => 'form-control']
+            ])
+            ->add('fax', null, [
+                'attr' => ['class' => 'form-control']
+            ])
+            ->add('mf', null, [
+                'attr' => ['class' => 'form-control']
+            ])
         ;
     }
 

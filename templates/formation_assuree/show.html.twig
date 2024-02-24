@@ -1,0 +1,34 @@
+{% extends 'template.html.twig' %}
+
+{% block title %}FormationAssuree{% endblock %}
+
+{% block body %}
+    <h1>FormationAssuree</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ formation_assuree.id }}</td>
+            </tr>
+            <tr>
+                <th>DateDebut</th>
+                <td>{{ formation_assuree.dateDebut ? formation_assuree.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Unite</th>
+                <td>{{ formation_assuree.unite }}</td>
+            </tr>
+            <tr>
+                <th>Qte</th>
+                <td>{{ formation_assuree.qte }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_formation_assuree_index') }}">back to list</a>
+
+    <a href="{{ path('app_formation_assuree_edit', {'id': formation_assuree.id}) }}">edit</a>
+
+    {{ include('formation_assuree/_delete_form.html.twig') }}
+{% endblock %}
