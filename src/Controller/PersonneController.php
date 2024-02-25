@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Personne;
+use App\Event\AddPersonneEvent;
+use App\Event\ListAllPersonneEvent;
 use App\Form\PersonneType;
 use App\Service\helpers;
 use App\Service\MailerService;
@@ -12,17 +14,20 @@ use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
-#[Route('personne')]
+#[Route('personne') ,  IsGranted('ROLE_USER')]
 class PersonneController extends AbstractController
 {
 
-    public function __construct(private LoggerInterface $logger , private Helpers $helper)
+    public function __construct(private LoggerInterface $logger , private Helpers $helper,private EventDispatcherInterface $dispatcher)
     {
     }
 
@@ -45,6 +50,7 @@ class PersonneController extends AbstractController
 
         $repository = $doctrine->getRepository(Personne::class);
         $personnes =$repository->findPersonneByAgeInterval($ageMin,$ageMax);
+
         return $this->render('personne/index.html.twig',['personnes'=>$personnes]);
     }
     #[Route('/stats/age/{ageMin}/{ageMax}', name: 'personne.list.age.stats')]
@@ -52,9 +58,10 @@ class PersonneController extends AbstractController
     {
         $repository = $doctrine->getRepository(Personne::class);
         $stats =$repository->statsPersonneByAgeInterval($ageMin,$ageMax);
+
         return $this->render('personne/stats.html.twig',['stats'=>$stats[0] ,'ageMin' =>$ageMin ,'ageMax'=>$ageMax]);
     }
-    #[Route('/alls/{page?1}/{nmbre?12}', name: 'personne.list.alls')]
+    #[Route('/alls/{page?1}/{nmbre?12}', name: 'personne.list.alls'),IsGranted("ROLE_USER")]
     public function indexAlls(ManagerRegistry $doctrine ,$page ,$nmbre):Response
     {
         //echo ($this->helper->sayCc());
@@ -62,6 +69,10 @@ class PersonneController extends AbstractController
         $nbPersonne = $repository->count([]);
         $nbrePage =  ceil($nbPersonne / $nmbre) ;
         $personnes =$repository->findBy([],[],$nmbre,($page -1)*$nmbre);
+
+
+        $listAllPersonneEvent = new ListAllPersonneEvent(count ($personnes));
+        $this->dispatcher->dispatch($listAllPersonneEvent,ListAllPersonneEvent::LIST_ALL_PERSONNE_EVENT);
 
         return $this->render('personne/index.html.twig',['personnes'=>$personnes ,'isPaginated'=>true , 'nbrePage'=>$nbrePage , 'page'=>$page ,'nbre'=>$nmbre]);
     }
@@ -79,6 +90,7 @@ class PersonneController extends AbstractController
     #[Route('/add', name: 'personne_add')]
     public function addPersonne(ManagerRegistry $doctrine , Request $request , UploaderService $uploaderService ,MailerService $mailer): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $personne = new Personne();
 
@@ -100,7 +112,11 @@ class PersonneController extends AbstractController
                 // instead of its contents
                 $personne->setImage($uploaderService->uploadFile($photo,$directory));
             }
+            $personne->setCreatedBy($this->getUser());
+
             $entityManager->flush();
+            $addPersonneEvent = new AddPersonneEvent($personne);
+            $this->dispatcher->dispatch($addPersonneEvent,AddPersonneEvent::ADD_PERSONNE_EVENT);
             $mailMessage = $personne->getFirstname().' '.$personne->getName().'est ajouter';
             $mailer->sendEmail(content: $mailMessage);
             return $this->redirectToRoute('personne.list');
@@ -111,7 +127,7 @@ class PersonneController extends AbstractController
         }
 
     }
-    #[Route('/delete/{id}', name: 'personne.delete')]
+    #[Route('/delete/{id}', name: 'personne.delete'), IsGranted('ROLE_ADMIN')]
     public function deletePersonne(Personne $personne =null , ManagerRegistry $doctrine):RedirectResponse
     {
         //recupere la personne

@@ -7,6 +7,9 @@
         {% if personne.image %}
             <img src="{{ asset('uploads/personnes/') }}{{ personne.image }}" alt="fgnf">
         {% endif %}
+        {% if app.user %}
+        <p>created by {{ app.user.email }}</p>
+        {% endif %}
     </div>
 
 {% endblock %}

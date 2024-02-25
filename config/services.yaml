@@ -23,6 +23,11 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+
+    App\EventListener\PersonneListener:
+        tags:
+            - { name: kernel.event_listener,event: personne.add }
+            - { name: kernel.event_listener,event: personne.list.alls, method: onListAllPersonne }
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 #    App\Service\MailerService:
